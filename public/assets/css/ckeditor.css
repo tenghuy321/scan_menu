@@ -1,0 +1,44 @@
+.ck-editor__editable h1, .prose h1 {
+    font-size: 25px;
+    font-weight: bold;
+    color: #401457 !important;
+}
+
+.ck-editor__editable ul, .prose ul {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    font-size: 12px;
+    color: #401457 !important;
+}
+
+.ck-editor__editable ol, .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.25rem;
+    font-size: 12px;
+    color: #401457 !important;
+}
+
+.ck-editor__editable h2, .prose h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #401457 !important;
+}
+
+.ck-editor__editable p{
+    font-size: 12px;
+    color: #401457 !important;
+}
+
+.ck-editor__editable a, .prose a {
+    color: #401457 !important;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.ck-editor__editable a:hover, .prose a:hover {
+    color: #401457 !important;
+    text-decoration: none;
+    font-size: 16px;
+}
+
