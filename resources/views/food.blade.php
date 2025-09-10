@@ -5,7 +5,8 @@
     $tableNumber = request()->query('table', 1);
 @endphp
 
-<div x-data="cartDrawer('{{ $tableNumber }}', '{{ csrf_token() }}')" class="max-w-6xl mx-auto p-6">
+
+<div x-data="cartDrawer('{{ $tableNumber }}')" class="max-w-6xl mx-auto p-6">
 
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
@@ -145,7 +146,7 @@ function cartDrawer(tableNumber) {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({ cart: this.cart, table: this.table })
                 });
