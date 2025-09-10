@@ -5,8 +5,10 @@
     $tableNumber = request()->query('table', 1);
 @endphp
 
+<!-- Add CSRF meta -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
-<div x-data="cartDrawer('{{ $tableNumber }}')" class="max-w-6xl mx-auto p-6">
+<div x-data="cartDrawer('{{ $tableNumber }}', '{{ csrf_token() }}')" class="max-w-6xl mx-auto p-6">
 
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
@@ -100,7 +102,7 @@
 </div>
 
 <script>
-function cartDrawer(tableNumber) {
+function cartDrawer(tableNumber, csrfToken) {
     return {
         open: false,
         table: tableNumber,
@@ -139,14 +141,12 @@ function cartDrawer(tableNumber) {
             if (!Object.keys(this.cart).length) return this.showToast('Cart is empty!', true);
 
             try {
-                // Small delay for mobile taps
-                await new Promise(r => setTimeout(r, 50));
-
+                // Use CSRF token passed from Blade
                 const res = await fetch('{{ route('order.store') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify({ cart: this.cart, table: this.table })
                 });
