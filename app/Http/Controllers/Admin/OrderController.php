@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -17,13 +18,21 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        // Get JSON payload
+        $data = $request->json()->all();
+
+        // Validate
+        $validator = Validator::make($data, [
             'cart' => 'required|array',
             'table' => 'required|string',
         ]);
 
-        $cart = $request->cart;
-        $table = $request->table;
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $cart = $data['cart'];
+        $table = $data['table'];
 
         // Create the order
         $order = Order::create([
@@ -46,6 +55,7 @@ class OrderController extends Controller
 
         return response()->json(['success' => true, 'order_id' => $order->id]);
     }
+
     public function destroy(Order $order)
     {
         $order->items()->delete(); // remove related items first
