@@ -2,17 +2,14 @@
 
 @section('content')
 @php
-    $tableNumber = request()->query('table', 1);
+    $tableNumber = request()->query('table', 1); // ?table=6
 @endphp
 
-<!-- CSRF Meta -->
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
-<div x-data="cartDrawer('{{ $tableNumber }}')" class="max-w-6xl mx-auto p-6">
+<div x-data="cartDrawer({{ $tableNumber }})" class="max-w-6xl mx-auto p-4 md:p-6">
 
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold">🍽️ មីនុយ</h2>
+        <h2 class="text-2xl font-bold">🍽️ Menu</h2>
         <div class="relative cursor-pointer" @click="open = true">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="w-8 h-8 text-gray-700">
@@ -34,36 +31,37 @@
     <!-- Category Buttons -->
     <div class="mb-6 flex space-x-4">
         <button :class="selectedCategory === 'Food' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-            class="px-4 py-2 rounded" @click="selectedCategory = 'Food'">អាហារ</button>
+            class="px-4 py-2 rounded" @click="selectedCategory = 'Food'">Food</button>
         <button :class="selectedCategory === 'Drink' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-            class="px-4 py-2 rounded" @click="selectedCategory = 'Drink'">ភេសជ្ជ</button>
+            class="px-4 py-2 rounded" @click="selectedCategory = 'Drink'">Drink</button>
     </div>
 
     <!-- Menu Items -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <template x-for="food in menu[selectedCategory]" :key="food.id">
+        <template x-for="item in menu[selectedCategory]" :key="item.id">
             <div class="bg-white shadow rounded-lg overflow-hidden">
-                <img :src="food.image" :alt="food.name" class="w-full h-40 object-cover">
+                <img :src="item.image" :alt="item.name" class="w-full h-40 object-cover">
                 <div class="p-4">
-                    <h5 class="font-semibold text-lg" x-text="food.name"></h5>
-                    <p class="text-gray-600 text-sm mb-2" x-text="food.description"></p>
-                    <p class="font-bold text-gray-800 mb-3">$<span x-text="food.price.toFixed(2)"></span></p>
+                    <h5 class="font-semibold text-lg" x-text="item.name"></h5>
+                    <p class="text-gray-600 text-sm mb-2" x-text="item.description"></p>
+                    <p class="font-bold text-gray-800 mb-3">$<span x-text="item.price.toFixed(2)"></span></p>
                     <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-                        @click="addItem(food.id, food.name, food.price, food.image)">
-                        ដាក់ក្នុងកន្រ្តក់ 🛒
+                        @click="addItem(item.id, item.name, item.price, item.image)">
+                        Add to Cart 🛒
                     </button>
                 </div>
             </div>
         </template>
     </div>
 
-    <!-- Cart Drawer & Overlay -->
+    <!-- Cart Overlay -->
     <div x-show="open" class="fixed inset-0 bg-black bg-opacity-40 z-40" @click="open=false"></div>
 
+    <!-- Cart Drawer -->
     <div class="fixed top-0 left-0 w-80 h-full bg-white shadow-lg z-50 transform transition-transform duration-300"
         :class="open ? 'translate-x-0' : '-translate-x-full'">
         <div class="flex justify-between items-center p-4 border-b">
-            <h3 class="text-lg font-bold">កន្រ្តក់របស់អ្នក</h3>
+            <h3 class="text-lg font-bold">Your Cart</h3>
             <button class="text-gray-600 hover:text-gray-900" @click="open=false">✖</button>
         </div>
 
@@ -81,7 +79,7 @@
                         <button class="px-2 border rounded" @click="updateQty(id, 1)">+</button>
                     </div>
                     <div class="flex flex-col items-end space-y-1">
-                        <button class="text-red-600 text-xs hover:underline" @click="removeItem(id)">លុប</button>
+                        <button class="text-red-600 text-xs hover:underline" @click="removeItem(id)">Remove</button>
                     </div>
                 </div>
             </template>
@@ -89,18 +87,19 @@
 
         <div class="p-4 border-t space-y-4">
             <div class="flex justify-between font-bold text-lg">
-                <span>សរុប:</span>
+                <span>Total:</span>
                 <span>$<span x-text="total.toFixed(2)"></span></span>
             </div>
 
             <button @click="checkout()"
                 class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
-                បញ្ជាទិញ ✅
+                Checkout ✅
             </button>
         </div>
     </div>
 </div>
 
+<!-- Alpine.js Cart -->
 <script>
 function cartDrawer(tableNumber) {
     return {
@@ -141,9 +140,6 @@ function cartDrawer(tableNumber) {
             if (!Object.keys(this.cart).length) return this.showToast('Cart is empty!', true);
 
             try {
-                // Small delay for mobile taps
-                await new Promise(r => setTimeout(r, 50));
-
                 const res = await fetch('{{ route('order.store') }}', {
                     method: 'POST',
                     headers: {
@@ -155,7 +151,7 @@ function cartDrawer(tableNumber) {
 
                 if (!res.ok) throw new Error('Network error');
 
-                this.showToast('ការកម្មង់បានបញ្ចប់ដោយជោគជ័យ!');
+                this.showToast('Order placed successfully!');
                 this.cart = {};
                 this.calculateTotal();
                 this.open = false;
