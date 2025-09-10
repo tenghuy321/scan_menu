@@ -23,8 +23,6 @@
 
 <body class="" style='font-family: "Kantumruy Pro", sans-serif;'>
     @yield('content')
-
-    @yield('js')
 </body>
 
 </html>
