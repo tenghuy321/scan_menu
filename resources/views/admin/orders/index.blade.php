@@ -7,7 +7,7 @@
             <div class="flex justify-between mb-2 items-center">
                 <div>
                     {{-- <span class="font-semibold">Invoice #{{ $loop->iteration }}</span> --}}
-                    <span class="font-semibold">Invoice #{{ mt_rand(10000000, 99999999) }}</span>
+                    <span class="font-semibold">Invoice #{{ $order->invoice_number }}</span>
                     <span> | <span class="font-semibold">Table</span> : {{ $order->table_number }}</span>
                     <span> | <span class="font-semibold">Date</span> : {{ $order->created_at->format('Y-m-d H:i') }}</span>
                 </div>

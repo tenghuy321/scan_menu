@@ -29,6 +29,7 @@ class OrderController extends Controller
         $order = Order::create([
             'table_number' => $table,
             'total' => collect($cart)->sum(fn($item) => $item['price'] * $item['qty']),
+            'invoice_number' => mt_rand(10000000, 99999999),
             'cart_data' => $cart,
         ]);
 

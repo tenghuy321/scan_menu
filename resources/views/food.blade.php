@@ -5,13 +5,11 @@
     $tableNumber = request()->query('table', 1);
 @endphp
 
-<!-- CSRF meta -->
-<meta name="csrf-token" content="{{ csrf_token() }}">
 
-<div x-data="cartDrawer({{ $tableNumber }})" class="max-w-6xl mx-auto p-4 md:p-6">
+<div x-data="cartDrawer('{{ $tableNumber }}')" class="max-w-6xl mx-auto p-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-4 md:mb-6">
+    <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold">🍽️ មីនុយ</h2>
         <div class="relative cursor-pointer" @click="open = true">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -32,7 +30,7 @@
     </div>
 
     <!-- Category Buttons -->
-    <div class="flex mb-4 md:mb-6 gap-2 md:gap-4">
+    <div class="mb-6 flex space-x-4">
         <button :class="selectedCategory === 'Food' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
             class="px-4 py-2 rounded" @click="selectedCategory = 'Food'">អាហារ</button>
         <button :class="selectedCategory === 'Drink' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
@@ -40,16 +38,16 @@
     </div>
 
     <!-- Menu Items -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        <template x-for="item in menu[selectedCategory]" :key="item.id">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <template x-for="food in menu[selectedCategory]" :key="food.id">
             <div class="bg-white shadow rounded-lg overflow-hidden">
-                <img :src="item.image" :alt="item.name" class="w-full h-40 object-cover">
-                <div class="p-3 md:p-4">
-                    <h5 class="font-semibold text-lg" x-text="item.name"></h5>
-                    <p class="text-gray-600 text-sm mb-2" x-text="item.description"></p>
-                    <p class="font-bold text-gray-800 mb-3">$<span x-text="item.price.toFixed(2)"></span></p>
+                <img :src="food.image" :alt="food.name" class="w-full h-40 object-cover">
+                <div class="p-4">
+                    <h5 class="font-semibold text-lg" x-text="food.name"></h5>
+                    <p class="text-gray-600 text-sm mb-2" x-text="food.description"></p>
+                    <p class="font-bold text-gray-800 mb-3">$<span x-text="food.price.toFixed(2)"></span></p>
                     <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-                        @click="addItem(item.id, item.name, item.price, item.image)">
+                        @click="addItem(food.id, food.name, food.price, food.image)">
                         ដាក់ក្នុងកន្រ្តក់ 🛒
                     </button>
                 </div>
@@ -75,7 +73,7 @@
                         <p class="font-medium" x-text="item.name"></p>
                         <p class="font-semibold">$<span x-text="(item.price * item.qty).toFixed(2)"></span></p>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center space-x-2">
                         <button class="px-2 border rounded" @click="updateQty(id, -1)">-</button>
                         <span x-text="item.qty"></span>
                         <button class="px-2 border rounded" @click="updateQty(id, 1)">+</button>
@@ -141,12 +139,14 @@ function cartDrawer(tableNumber) {
             if (!Object.keys(this.cart).length) return this.showToast('Cart is empty!', true);
 
             try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                // Small delay for mobile taps
+                await new Promise(r => setTimeout(r, 50));
+
                 const res = await fetch('{{ route('order.store') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({ cart: this.cart, table: this.table })
                 });

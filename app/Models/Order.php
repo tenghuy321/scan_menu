@@ -9,7 +9,7 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['table_number', 'total', 'cart_data'];
+    protected $fillable = ['table_number','invoice_number', 'total', 'cart_data'];
 
     protected $casts = [
         'cart_data' => 'array', // automatically convert JSON to array
