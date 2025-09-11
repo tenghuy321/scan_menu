@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -17,6 +18,7 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('Order received:', $request->all());
         $request->validate([
             'cart' => 'required|array',
             'table' => 'required|string',
