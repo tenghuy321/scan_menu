@@ -16,13 +16,13 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-8 h-8 text-gray-700">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5
-                        14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3
-                        2.1-4.684 2.924-7.138a60.114 60.114 0
-                        0 0-16.536-1.84M7.5 14.25 5.106
-                        5.272M6 20.25a.75.75 0 1 1-1.5
-                        0 .75.75 0 0 1 1.5 0Zm12.75
-                        0a.75.75 0 1 1-1.5 0 .75.75
-                        0 0 1 1.5 0Z" />
+                            14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3
+                            2.1-4.684 2.924-7.138a60.114 60.114 0
+                            0 0-16.536-1.84M7.5 14.25 5.106
+                            5.272M6 20.25a.75.75 0 1 1-1.5
+                            0 .75.75 0 0 1 1.5 0Zm12.75
+                            0a.75.75 0 1 1-1.5 0 .75.75
+                            0 0 1 1.5 0Z" />
                 </svg>
                 <span x-show="cartCount > 0" x-text="cartCount"
                     class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full"></span>
@@ -38,7 +38,7 @@
         </div>
 
         <!-- Menu Items -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="hidden sm:grid grid-cols-1 md:grid-cols-3 gap-6">
             <template x-for="food in menu[selectedCategory]" :key="food.id">
                 <div class="bg-white shadow rounded-lg overflow-hidden">
                     <img :src="food.image" :alt="food.name" class="w-full h-40 object-cover">
@@ -55,11 +55,28 @@
             </template>
         </div>
 
+        <div class="sm:hidden flex flex-col gap-6">
+            <template x-for="food in menu[selectedCategory]" :key="food.id">
+                <div class="w-full flex items-center gap-2 bg-white shadow rounded-lg overflow-hidden">
+                    <img :src="food.image" :alt="food.name" class="w-[30%] h-20 object-cover rounded-md">
+                    <div class="w-[70%] relative px-4">
+                        <h5 class="font-semibold text-md" x-text="food.name"></h5>
+                        <p class="text-gray-600 text-[10px] mb-2" x-text="food.description"></p>
+                        <p class="font-bold text-gray-800 mb-3">$<span x-text="food.price.toFixed(2)"></span></p>
+                        <button class="w-10 h-10 absolute bottom-0 right-0 bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition text-[12px]"
+                            @click="addItem(food.id, food.name, food.price, food.image)">
+                            🛒
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
         <!-- Cart Drawer & Overlay -->
         <div x-show="open" class="fixed inset-0 bg-black bg-opacity-40 z-40" @click="open=false"></div>
 
         <div class="fixed top-0 left-0 w-80 h-full bg-white shadow-lg z-50 transform transition-transform duration-300"
-            :class="open ? 'translate-x-0' : '-translate-x-full'">
+            :class="open ? 'translate-x-0' : '-translate-x-full'" x-cloak>
             <div class="flex justify-between items-center p-4 border-b">
                 <h3 class="text-lg font-bold">កន្រ្តក់របស់អ្នក</h3>
                 <button class="text-gray-600 hover:text-gray-900" @click="open=false">✖</button>
