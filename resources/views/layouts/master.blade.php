@@ -36,13 +36,16 @@
                 menu: @json($menu),
 
                 addItem(id, name, price, image) {
-                    if (!this.cart[id]) this.cart[id] = {
-                        name,
-                        price: parseFloat(price),
-                        qty: 1,
-                        image
-                    };
-                    else this.cart[id].qty++;
+                    if (!this.cart[id]) {
+                        this.cart[id] = {
+                            name,
+                            price: parseFloat(price),
+                            qty: 1,
+                            image
+                        };
+                    } else {
+                        this.cart[id].qty++;
+                    }
                     this.calculateTotal();
                     this.open = true;
                 },
@@ -61,12 +64,16 @@
                 },
 
                 calculateTotal() {
-                    this.total = Object.values(this.cart).reduce((sum, item) => sum + item.price * item.qty, 0);
-                    this.cartCount = Object.values(this.cart).reduce((sum, item) => sum + item.qty, 0);
+                    this.total = Object.values(this.cart)
+                        .reduce((sum, item) => sum + item.price * item.qty, 0);
+                    this.cartCount = Object.values(this.cart)
+                        .reduce((sum, item) => sum + item.qty, 0);
                 },
 
                 async checkout() {
-                    if (!Object.keys(this.cart).length) return this.showToast('Cart is empty!', true);
+                    if (!Object.keys(this.cart).length) {
+                        return this.showToast('Cart is empty!', true);
+                    }
 
                     try {
                         // Small delay for mobile taps
@@ -76,6 +83,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'Accept': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                             },
                             body: JSON.stringify({
@@ -84,7 +92,22 @@
                             })
                         });
 
-                        if (!res.ok) throw new Error('Network error');
+                        if (!res.ok) {
+                            let errMsg = 'Network error';
+                            try {
+                                const errData = await res.json();
+                                console.error('Validation/Server Error:', errData);
+                                if (errData?.message) {
+                                    errMsg = errData.message;
+                                }
+                            } catch (e) {
+                                console.error('Response parse failed', e);
+                            }
+                            throw new Error(errMsg);
+                        }
+
+                        const data = await res.json();
+                        console.log('Order response:', data);
 
                         this.showToast('ការកម្មង់បានបញ្ចប់ដោយជោគជ័យ!');
                         this.cart = {};
@@ -93,7 +116,7 @@
 
                     } catch (err) {
                         console.error(err);
-                        this.showToast('Something went wrong!', true);
+                        this.showToast(err.message || 'Something went wrong!', true);
                     }
                 },
 
@@ -101,13 +124,14 @@
                     const toast = document.createElement('div');
                     toast.textContent = msg;
                     toast.className =
-                        `fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg text-white ${error ? 'bg-red-600' : 'bg-green-600'}`;
+                        `fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg text-white z-50 ${error ? 'bg-red-600' : 'bg-green-600'}`;
                     document.body.appendChild(toast);
                     setTimeout(() => toast.remove(), 3000);
                 }
             }
         }
     </script>
+
 </body>
 
 </html>
