@@ -18,7 +18,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'cart' => 'required|array|min:1',
+            'cart' => 'required|array',
             'table' => 'required|string',
         ]);
 
@@ -27,29 +27,25 @@ class OrderController extends Controller
 
         // Create the order
         $order = Order::create([
-            'table_number'   => $table,
-            'total'          => collect($cart)->sum(fn($item) => $item['price'] * $item['qty']),
+            'table_number' => $table,
+            'total' => collect($cart)->sum(fn($item) => $item['price'] * $item['qty']),
             'invoice_number' => mt_rand(10000000, 99999999),
-            'cart_data'      => $cart,
+            'cart_data' => $cart,
         ]);
 
         // Create order items
-        foreach ($cart as $item) {
+        foreach ($cart as $foodId => $item) {
             OrderItem::create([
-                'order_id'  => $order->id,
-                'food_id'   => $item['id'] ?? null,
+                'order_id' => $order->id,
+                'food_id' => $foodId,
                 'food_name' => $item['name'],
-                'price'     => $item['price'],
-                'quantity'  => $item['qty'],
+                'price' => $item['price'],
+                'quantity' => $item['qty'],
             ]);
         }
 
-        return response()->json([
-            'success'  => true,
-            'order_id' => $order->id,
-        ]);
+        return response()->json(['success' => true, 'order_id' => $order->id]);
     }
-
     public function destroy(Order $order)
     {
         $order->items()->delete(); // remove related items first
