@@ -13,10 +13,12 @@ Route::get('/dashboard', function () {
     return view('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::post('/order', [OrderController::class, 'store'])->name('order.store');
+
+
 Route::middleware('auth')->group(function () {
 
     Route::get('/order', [OrderController::class, 'index'])->name('order');
-    Route::post('/order', [OrderController::class, 'store'])->name('order.store');
     Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
 
 
