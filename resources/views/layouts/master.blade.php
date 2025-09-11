@@ -38,6 +38,7 @@
                 addItem(id, name, price, image) {
                     if (!this.cart[id]) {
                         this.cart[id] = {
+                            id,
                             name,
                             price: parseFloat(price),
                             qty: 1,
@@ -79,15 +80,18 @@
                         // Small delay for mobile taps
                         await new Promise(r => setTimeout(r, 50));
 
-                        const res = await fetch('{{ route('order.store') }}', {
+                        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                        console.log("CSRF:", csrf);
+
+                        const res = await fetch("{{ url('/order') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                'X-CSRF-TOKEN': csrf
                             },
                             body: JSON.stringify({
-                                cart: this.cart,
+                                cart: Object.values(this.cart), // send as array
                                 table: this.table
                             })
                         });
@@ -131,6 +135,7 @@
             }
         }
     </script>
+
 
 </body>
 

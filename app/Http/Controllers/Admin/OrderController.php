@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -18,9 +17,8 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info('Order received:', $request->all());
         $request->validate([
-            'cart' => 'required|array',
+            'cart' => 'required|array|min:1',
             'table' => 'required|string',
         ]);
 
@@ -29,25 +27,29 @@ class OrderController extends Controller
 
         // Create the order
         $order = Order::create([
-            'table_number' => $table,
-            'total' => collect($cart)->sum(fn($item) => $item['price'] * $item['qty']),
+            'table_number'   => $table,
+            'total'          => collect($cart)->sum(fn($item) => $item['price'] * $item['qty']),
             'invoice_number' => mt_rand(10000000, 99999999),
-            'cart_data' => $cart,
+            'cart_data'      => $cart,
         ]);
 
         // Create order items
-        foreach ($cart as $foodId => $item) {
+        foreach ($cart as $item) {
             OrderItem::create([
-                'order_id' => $order->id,
-                'food_id' => $foodId,
+                'order_id'  => $order->id,
+                'food_id'   => $item['id'] ?? null,
                 'food_name' => $item['name'],
-                'price' => $item['price'],
-                'quantity' => $item['qty'],
+                'price'     => $item['price'],
+                'quantity'  => $item['qty'],
             ]);
         }
 
-        return response()->json(['success' => true, 'order_id' => $order->id]);
+        return response()->json([
+            'success'  => true,
+            'order_id' => $order->id,
+        ]);
     }
+
     public function destroy(Order $order)
     {
         $order->items()->delete(); // remove related items first
